@@ -1,0 +1,20 @@
+
+SCHEMA >
+    `id` Nullable(String),
+    `name` Nullable(String),
+    `scientific_name` Nullable(String),
+    `family` Nullable(String),
+    `timestamp` Nullable(DateTime64(3)),
+    `country` Nullable(String),
+    `habitat` Nullable(String),
+    `genre` Nullable(String)
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYear(insertion_date)"
+ENGINE_SORTING_KEY "insertion_date"
+
+IMPORT_SERVICE 'bigquery'
+IMPORT_SCHEDULE '0 0 */1 * *'
+IMPORT_STRATEGY 'replace'
+IMPORT_QUERY 'SELECT `id`, `name`, `scientific_name`, `family`, `timestamp`, `country`, `habitat`, `genre` FROM `development-353413.bird_spotter.tiny_bird_records`'
+IMPORT_EXTERNAL_DATASOURCE 'development-353413.bird_spotter.tiny_bird_records'

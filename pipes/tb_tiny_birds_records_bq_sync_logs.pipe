@@ -1,0 +1,21 @@
+TOKEN "tb_tiny_birds_records_bq_sync_logs_endpoint_read_4793" READ
+
+NODE replace_by_date
+SQL >
+
+    SELECT 
+      toDate(timestamp) as date,
+      sum(if(result = 'error', 1, 0)) as error_count,
+      count() as replace_count,
+      if(replace_count > 0, 1, 0) as replace_flag
+    FROM
+      tinybird.datasources_ops_log
+    WHERE
+      datasource_name = 'tiny_bird_records'
+    AND
+      event_type = 'replace'
+    GROUP BY date
+    ORDER BY date DESC
+
+
+

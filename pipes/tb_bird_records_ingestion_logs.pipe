@@ -1,0 +1,20 @@
+TOKEN "tb_bird_records_ingestion_logs_endpoint_read_0745" READ
+
+NODE appends_by_date
+SQL >
+
+    SELECT 
+      toDate(timestamp) as date,
+      sum(if(result = 'error', 1, 0)) as error_count,
+      count() as ingestion_count,
+      if(ingestion_count > 0, 1, 0) as ingestion_flag
+    FROM
+      tinybird.datasources_ops_log
+    WHERE
+      datasource_name = 'bird_records'
+    AND
+      event_type = 'append'
+    GROUP BY date
+    ORDER BY date DESC
+
+

@@ -1,0 +1,9 @@
+
+SCHEMA >
+    `num_of_birds` UInt64,
+    `hour` DateTime,
+    `country` String
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(hour)"
+ENGINE_SORTING_KEY "country, hour"

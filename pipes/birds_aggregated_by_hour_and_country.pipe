@@ -1,0 +1,17 @@
+TOKEN "scheduled_copy_t_e25cbcaed0bc4ece877538b2ef3f3848" READ
+
+NODE birds_by_hour_and_country_copy
+SQL >
+
+    SELECT 
+      count() as num_of_birds,
+      toStartOfHour(timestamp) as hour,
+      country
+    FROM bird_records
+      GROUP BY hour, country
+
+TYPE copy
+TARGET_DATASOURCE birds_by_hour_and_country_from_copy
+COPY_SCHEDULE 0 * * * *
+
+
