@@ -1,4 +1,4 @@
-name: Append new sata to bird_records data source
+name: Append new data to bird_records data source
 
 on:
     schedule:

@@ -1,8 +1,8 @@
-name: Hourly ingestion, copy and BQ sync monitoring 
+name: Daily ingestion, copy and BQ sync monitoring 
 
 on:
   schedule:
-      - cron: "0 1 * * *"
+      - cron: "0 8 * * *"
 
 jobs:
   build-and-run:
