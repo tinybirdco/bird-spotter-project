@@ -1,6 +1,9 @@
 name: Daily ingestion, copy and BQ sync monitoring 
 
 on:
+  push:
+    branches:
+      - main
   schedule:
       - cron: "0 8 * * *"
 

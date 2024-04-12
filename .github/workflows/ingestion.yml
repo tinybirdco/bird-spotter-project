@@ -1,8 +1,11 @@
 name: Append new data to bird_records data source
 
 on:
-    schedule:
-        - cron: "0 1 * * *"
+  push:
+    branches:
+      - main
+  schedule:
+      - cron: "0 1 * * *"
 
 jobs:
   build-and-run:
