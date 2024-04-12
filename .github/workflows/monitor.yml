@@ -1,6 +1,7 @@
 name: Daily ingestion, copy and BQ sync monitoring 
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main

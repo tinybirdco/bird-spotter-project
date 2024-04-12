@@ -32,11 +32,10 @@ def get_data_from_tb_endpoint(endpoint_name:str, token:str=TB_TOKEN) -> list:
         if response.status_code == 200:
             data = response.json()
             records = data['data']
+            return records
     except Exception as e:
         logger.error(f"Error: {e}")
         pass
-        
-    return records
 
 
 def get_alerts_from_tb_endpoints(endpoint_field:str, records:list) -> dict:   

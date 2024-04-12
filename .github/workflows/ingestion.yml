@@ -1,6 +1,7 @@
 name: Append new data to bird_records data source
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
