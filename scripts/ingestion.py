@@ -3,6 +3,7 @@ import requests
 import warnings
 import os
 import json
+import random
 
 BASE_URL = 'https://api.tinybird.co/v0/pipes/'
 TB_TOKEN = os.environ.get('TB_TOKEN')
@@ -32,6 +33,11 @@ def get_ndjson(endpoint_name:str, token=TB_TOKEN) -> list:
         raise Exception(f"Error getting data from Tinybird: {e}")
 
 
+def generate_random_bit():
+    '''Generate a random bit.'''
+    return random.randint(0, 1)
+
+
 def ingest_data(datasource_name, endpoint_name, token=TB_TOKEN):
     '''Ingest data into a data source from an endpoint file path'''
     params = {
@@ -54,11 +60,12 @@ def ingest_data(datasource_name, endpoint_name, token=TB_TOKEN):
 
 
 def ingestion():
-
-    ingest_data(
-        'bird_records',
-        'bird_records_sample'
-    )
+    '''Ingest data from an endpoint to a data source depending on a random result.'''
+    if generate_random_bit():
+        ingest_data(
+            'bird_records',
+            'bird_records_sample'
+        )
 
 if __name__ == '__main__':
     ingestion()

@@ -2,6 +2,8 @@
 
 A Tinybird project to monitor data source ingestion, copy processes and BigQuery syncs using fake bird data and Tinybird endpoints and service data sources.
 
+In order to fake 
+
 ## Installation
 
 1. Clone the repository
@@ -24,6 +26,8 @@ pip install -r requirements.txt
 export TB_TOKEN=your_api_key
 ```
 
+This Token should have the proper permissions to append data to the `bird_records` data source and to read the `tb_bird_records_ingestion_logs`, `tb_birds_by_hour_and_country_copy_logs`,  `tb_tiny_bird_records_bq_sync_logs` and `bird_records_sample` endpoints.
+
 ### Project Structure
 
 Workspace: bird_spotter
@@ -37,7 +41,7 @@ Workspace: bird_spotter
 
 **Copy pipes**
 
-* `birds_aggregated_by_hour_and_country`: copy pipe that aggregates the data from `bird_records`` by hour and country and populates `birds_by_hour_and_country_from_copy``
+* `birds_aggregated_by_hour_and_country`: copy pipe that aggregates the data from `bird_records` by hour and country and populates `birds_by_hour_and_country_from_copy`
 
 
 **Endpoints**
@@ -45,6 +49,7 @@ Workspace: bird_spotter
 * `tb_bird_records_ingestion_logs`: check ingestion events and errors by date
 * `tb_birds_by_hour_and_country_copy_logs`: check copy events and errors by hour
 * `tb_tiny_bird_records_bq_sync_logs`: check bq syncs by date
+* `bird_records_sample`: sample of the `bird_records` data source
 
 **Python Scripts**
 
@@ -53,5 +58,11 @@ Workspace: bird_spotter
 
 **Workflows**
 
-* `ingestion.yml`: ingest data from a Tinybird endpoint into `bird_records` using the events API every day at 1am
-* `monitor.yml`: monitor the ingestion, copy and sync processes every day at 2am
+* `ingestion.yml`: ingest data from a Tinybird endpoint (faking a real data set) into `bird_records` using the events API every day at 1:00 UTC
+* `monitor.yml`: monitor the ingestion, copy and sync processes every day at 8:00 UTC 
+
+**TODO**
+
+- [x] Fake a no ingestion error
+- [ ] Fake a data ingestion error
+- [ ] Fake a quarantine error
