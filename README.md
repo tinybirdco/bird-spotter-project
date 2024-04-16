@@ -2,8 +2,6 @@
 
 A Tinybird project to monitor data source ingestion, copy processes and BigQuery syncs using fake bird data and Tinybird endpoints and service data sources.
 
-In order to fake 
-
 ## Installation
 
 1. Clone the repository
@@ -62,6 +60,10 @@ Workspace: bird_spotter
 
 * `ingestion.py`: ingest data into `bird_records`
 * `monitor.py`: monitor the ingestion, copy and sync processes, if appends, copies or syncs are not being executed as expected (hourly, daily, etc) it will append a log to the corresponding endpoint in order to alert the user
+
+**Faking ingestion errors**
+
+In order to fake an ingestion error, the `generate_random_bit()` function within `ingestion.py` when returning 0, it will not ingest/append new data into `bird_records`. This is a way to simulate an ingestion error. Faking copy or sync errors is not implemented yet.
 
 **Workflows**
 
