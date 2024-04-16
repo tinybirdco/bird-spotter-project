@@ -2,27 +2,44 @@ import requests
 import logging
 import warnings
 import os
+import datetime as dt
 
 
 warnings.filterwarnings("ignore")
-FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
-logging.basicConfig(format=FORMAT, level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+TODAY = dt.datetime.now().strftime('%Y-%m-%d')
 
 
-TB_TOKEN = os.environ.get('TB_TOKEN')
 BASE_URL = 'https://api.tinybird.co/v0/pipes/'
 ENDPOINTS_CONFIG = [
-    {'name': 'tb_bird_records_ingestion_logs', 'field': 'ingestion_count'},
-    {'name': 'tb_birds_by_hour_and_country_copy_logs', 'field': 'copy_count'},
-    {'name': 'tb_tiny_birds_records_bq_sync_logs', 'field': 'replace_count'}
+    {'name': 'tb_bird_records_ingestion_logs', 'field': 'append_count', "limit": 1},
+    {'name': 'tb_birds_by_hour_and_country_copy_logs', 'field': 'copy_count', "limit": 24},
+    {'name': 'tb_tiny_birds_records_bq_sync_logs', 'field': 'replace_count', "limit": 1},
 ]
 
 
-def get_data_from_tb_endpoint(endpoint_name:str, token:str=TB_TOKEN) -> list:
+def get_token(token: str) -> str:
+    '''
+    Get the Tinybird API token:
+        :param token: Tinybird API token
+    '''
+
+    if not token:
+        token = os.environ.get("TB_TOKEN")
+    
+        if not token:
+            raise ValueError("Token not found. "
+                            "Please set it as an environment variable named 'TB_TOKEN'.")
+    
+    return token
+
+
+def get_data_from_tb_endpoint(endpoint_name) -> list:
     '''
     Returns the data from a Tinybird endpoint call.
     '''
+    token = get_token(None)
     url = f'{BASE_URL}{endpoint_name}.json'
     headers = {'Authorization': f'Bearer {token}'}
 
@@ -38,31 +55,45 @@ def get_data_from_tb_endpoint(endpoint_name:str, token:str=TB_TOKEN) -> list:
         pass
 
 
-def get_alerts_from_tb_endpoints(endpoint_field:str, records:list) -> dict:   
+def get_alerts_from_tb_endpoints(endpoint:dict, records:list, alerts: dict) -> dict:   
     '''
-    Returns an alert object with errors, events and records messages.
+    Append alerts if any of the log operations failed.
     '''
-    alerts = {
-        "errors": "",
-        "events": "",
-        "records": ""
-    }
-    event_type = endpoint_field.split('_')[0]
-
-    if len(records) > 0:
-        error_count = records[0]['error_count']
-        event_count = records[0][endpoint_field]
-
-        if error_count > 0:
-            alerts['errors'] = "There are errors."
-                
-        if event_count == 0:
-            alerts['events'] =  f"There were no {event_type} events."
     
-    else:
-        alerts['events'] = "No records for today."
+    last_record = records[0]
+    last_record_date = last_record['date']
+    
 
-    return alerts
+    if last_record_date != TODAY:
+        alerts["alert_message"].append(
+            f"Last record date is not today: {last_record_date}"
+        )
+    else:
+        if last_record[endpoint['field']] < endpoint['limit']:
+            alerts["alert_count"][endpoint['field']] += 1
+            alerts["alert_message"].append(
+                f"Last {endpoint['field']} count is less than {endpoint['limit']}. Check it!"
+            )
+        elif last_record[endpoint['field']] == endpoint['limit']:
+            alerts["alert_message"].append(
+                f"Last {endpoint['field']} count is equal to {endpoint['limit']}. All fine!"
+            )
+        else:
+            alerts["alert_message"].append(
+                f"Last {endpoint['field']} count is greater than {endpoint['limit']}. Check it!"
+            )
+
+
+def log_alerts(alerts: dict) -> None:
+    '''
+    Log alerts.
+    '''
+    for alert in alerts['alert_message']:
+        logger.info(alert)
+    logger.info("Alerts summary:")
+    logger.info(f"Append count: {alerts['alert_count']['append_count']}")
+    logger.info(f"Copy count: {alerts['alert_count']['copy_count']}")
+    logger.info(f"Replace count: {alerts['alert_count']['replace_count']}")
 
 
 def monitor() -> None:
@@ -70,10 +101,20 @@ def monitor() -> None:
     Get alerts from each endpoint list.
     '''
 
+    alerts = {
+        "alert_count":
+            {
+                "replace_count": 0,
+                "copy_count": 0,
+                "append_count": 0
+            },
+        "alert_message": []
+    } 
     for endpoint in ENDPOINTS_CONFIG:
         records = get_data_from_tb_endpoint(endpoint['name'])
-        alerts = get_alerts_from_tb_endpoints(endpoint['field'], records)
-        logging.info(alerts)
+        get_alerts_from_tb_endpoints(endpoint, records, alerts)
+    
+    log_alerts(alerts)
 
 
 if __name__ == '__main__':

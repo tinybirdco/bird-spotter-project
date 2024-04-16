@@ -1,0 +1,11 @@
+TOKEN "bird_records_sample_endpoint_read_0233" READ
+
+TOKEN "gh_token" READ
+
+NODE sample_10_rows
+SQL >
+
+    SELECT * FROM bird_records
+    LIMIT 10
+
+
