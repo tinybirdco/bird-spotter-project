@@ -1,5 +1,7 @@
 TOKEN "tb_tiny_birds_records_bq_sync_logs_endpoint_read_4793" READ
 
+TOKEN "gh_token" READ
+
 NODE replace_by_date
 SQL >
 
@@ -16,6 +18,5 @@ SQL >
       event_type = 'replace'
     GROUP BY date
     ORDER BY date DESC
-
 
 

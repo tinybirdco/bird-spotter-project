@@ -1,20 +1,22 @@
 TOKEN "tb_birds_by_hour_and_country_copy_logs_endpoint_read_2379" READ
 
-NODE copy_by_hour
+TOKEN "gh_token" READ
+
+NODE copy_by_date
 SQL >
 
     SELECT
-      toStartOfHour(timestamp) as hour,
+      toDate(timestamp) as date,
       sum(if(result = 'error', 1, 0)) as error_count,
       count() as copy_count,
-      if(copy_count > 0, 1, 0) as copy_flag
+      if(copy_count >= 24, 1, 0) as copy_flag
     FROM
       tinybird.datasources_ops_log
     WHERE 
       datasource_name = 'birds_by_hour_and_country_from_copy'
     AND
       event_type = 'copy'
-    GROUP BY hour
-    ORDER BY hour DESC
+    GROUP BY date
+    ORDER BY date DESC
 
 

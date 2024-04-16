@@ -1,14 +1,16 @@
+TOKEN "gh_token" APPEND
+
 
 SCHEMA >
-    `id` String,
-    `name` String,
-    `scientific_name` String,
-    `family` String,
-    `timestamp` DateTime,
-    `country` String,
-    `habitat` String,
-    `genre` String
+    `country` String `json:$.country`,
+    `family` String `json:$.family`,
+    `genre` String `json:$.genre`,
+    `habitat` String `json:$.habitat`,
+    `id` String `json:$.id`,
+    `name` String `json:$.name`,
+    `scientific_name` String `json:$.scientific_name`,
+    `timestamp` DateTime `json:$.timestamp`
 
 ENGINE "MergeTree"
-ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
-ENGINE_SORTING_KEY "country, name, timestamp"
+ENGINE_PARTITION_KEY "toYear(timestamp)"
+ENGINE_SORTING_KEY "timestamp, id, name, scientific_name"
