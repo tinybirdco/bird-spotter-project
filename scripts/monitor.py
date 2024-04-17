@@ -14,7 +14,7 @@ TODAY = dt.datetime.now().strftime('%Y-%m-%d')
 BASE_URL = 'https://api.tinybird.co/v0/pipes/'
 ENDPOINTS_CONFIG = [
     {'name': 'tb_bird_records_ingestion_logs', 'field': 'append_count', "limit": 1},
-    {'name': 'tb_birds_by_hour_and_country_copy_logs', 'field': 'copy_count', "limit": 24},
+    {'name': 'tb_birds_by_hour_and_country_copy_logs', 'field': 'copy_count', "limit": 9}, # 9 copy jobs will happen before 8am UTC
     {'name': 'tb_tiny_birds_records_bq_sync_logs', 'field': 'replace_count', "limit": 1},
 ]
 
@@ -62,17 +62,17 @@ def get_alerts_from_tb_endpoints(endpoint:dict, records:list, alerts: dict) -> d
     
     last_record = records[0]
     last_record_date = last_record['date']
-    
 
     if last_record_date != TODAY:
-        alerts["alert_message"].append(
-            f"Last record date is not today: {last_record_date}"
-        )
+            alerts["alert_message"].append(
+                f"Alert! Ingestion operation missing. Last ingestion date is not today: {last_record_date}"
+            )
+            alerts["alert_count"][endpoint['field']] += 1
     else:
         if last_record[endpoint['field']] < endpoint['limit']:
             alerts["alert_count"][endpoint['field']] += 1
             alerts["alert_message"].append(
-                f"Last {endpoint['field']} count is less than {endpoint['limit']}. Check it!"
+                f"Alert! Last {endpoint['field']} count is less than {endpoint['limit']}."
             )
         elif last_record[endpoint['field']] == endpoint['limit']:
             alerts["alert_message"].append(
@@ -80,7 +80,7 @@ def get_alerts_from_tb_endpoints(endpoint:dict, records:list, alerts: dict) -> d
             )
         else:
             alerts["alert_message"].append(
-                f"Last {endpoint['field']} count is greater than {endpoint['limit']}. Check it!"
+                f"Alert! Last {endpoint['field']} count is greater than {endpoint['limit']}. Check it!"
             )
 
 
@@ -91,9 +91,9 @@ def log_alerts(alerts: dict) -> None:
     for alert in alerts['alert_message']:
         logger.info(alert)
     logger.info("Alerts summary:")
-    logger.info(f"Append count: {alerts['alert_count']['append_count']}")
-    logger.info(f"Copy count: {alerts['alert_count']['copy_count']}")
-    logger.info(f"Replace count: {alerts['alert_count']['replace_count']}")
+    logger.info(f"Append error count: {alerts['alert_count']['append_count']}")
+    logger.info(f"Copy error count: {alerts['alert_count']['copy_count']}")
+    logger.info(f"Replace error count: {alerts['alert_count']['replace_count']}")
 
 
 def monitor() -> None:

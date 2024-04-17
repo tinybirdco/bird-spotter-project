@@ -75,14 +75,16 @@ In order to fake an ingestion error, the `generate_random_bit()` function within
 The output of the `monitor.py` script should be something like:
 
 ```
-INFO:__main__:Last append_count count is equal to 1. All fine!
-INFO:__main__:Last copy_count count is less than 24. Check it!
+INFO:__main__:Alert! Ingestion operation missing. Last ingestion date is not today: 2024-04-16
+INFO:__main__:Last copy_count count is equal to 9. All fine!
 INFO:__main__:Last replace_count count is equal to 1. All fine!
 INFO:__main__:Alerts summary:
-INFO:__main__:Append count: 0
-INFO:__main__:Copy count: 1
-INFO:__main__:Replace count: 0
+INFO:__main__:Append error count: 1
+INFO:__main__:Copy error count: 0
+INFO:__main__:Replace error count: 0
 ```
+
+In this example, the script has failed to append because of our faking method and the append error count is 1.
 
 **TODO**
 
