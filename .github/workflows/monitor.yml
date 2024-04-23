@@ -5,8 +5,9 @@ on:
   push:
     branches:
       - main
-  schedule:
-      - cron: "0 8 * * *"
+  # uncomment the following lines to run the workflow on a schedule
+  # schedule:
+  #     - cron: "0 8 * * *"
 
 jobs:
   build-and-run:
